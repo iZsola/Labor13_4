@@ -1,7 +1,6 @@
 package sample;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -34,37 +33,30 @@ public class Main extends Application{
         int m=temp.get(1);
         if (n >20 || m > n || m<2)
             System.exit(1);
-
         Controller b=new Controller(n, m);
         while (true)
         {
+            System.out.print("");
             if (b.isGameOver())
             {
-                System.out.println("IDE ERT\n");
-                Alert a= new Alert(Alert.AlertType.NONE);
-                a.setAlertType(Alert.AlertType.CONFIRMATION);
-                a.setContentText(String.format("Winner is player %d!", 1));
-                a.showAndWait();
-                break;
+                if (b.isDraw())
+                    declareWinner(0);
+                else
+                    declareWinner(b.getPlayer1turn() ? 2 : 1);
+                System.exit(0);
             }
         }
     }
 
-    public static void declareWinner(char winner)
+    public void declareWinner(int winner)
     {
-        Platform.setImplicitExit(false);
-        /*Platform.runLater(() -> {
-            System.out.println("IDE ERT\n");
-            Alert a= new Alert(Alert.AlertType.NONE);
-            a.setAlertType(Alert.AlertType.CONFIRMATION);
-            a.setContentText(String.format("Winner is player %d!", winner=='X' ? 1 : 2));
-            a.showAndWait();
-        });*/
         Alert a= new Alert(Alert.AlertType.NONE);
-        a.setAlertType(Alert.AlertType.CONFIRMATION);
-        a.setContentText(String.format("Winner is player %d!", winner=='X' ? 1 : 2));
+        a.setAlertType(Alert.AlertType.INFORMATION);
+        if (winner==0)
+            a.setContentText("Game ended in draw!");
+        else
+            a.setContentText(String.format("Winner is player %d!", winner));
         a.showAndWait();
-
     }
 
     public ArrayList<Integer> displayLoginPage(final Stage owner) {

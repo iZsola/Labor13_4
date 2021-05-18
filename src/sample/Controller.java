@@ -1,13 +1,7 @@
 package sample;
 
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
-
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -15,10 +9,11 @@ import javax.swing.JPanel;
 
 public class Controller implements ActionListener{
     private boolean player1turn;
-    private boolean player2turn;
-    private int boardSize;
+    private final int boardSize;
     private final int symbolNr;
+    private boolean isDraw=false;
     private int count;
+    private final JFrame gameFrame=new JFrame();
     private char[][] grid;
     private JButton[][] gameGrid;
     private boolean gameOver=false;
@@ -35,12 +30,12 @@ public class Controller implements ActionListener{
         return player1turn;
     }
 
-    public boolean getPlayer2turn() {
-        return player2turn;
-    }
-
     public boolean isGameOver() {
         return gameOver;
+    }
+
+    public boolean isDraw() {
+        return isDraw;
     }
 
     public int getBoardSize() {
@@ -51,13 +46,6 @@ public class Controller implements ActionListener{
         this.player1turn = player1turn;
     }
 
-    public void setPlayer2turn(boolean player2turn) {
-        this.player2turn = player2turn;
-    }
-
-    public void setBoardSize(int boardSize) {
-        this.boardSize = boardSize;
-    }
 
     @Override
     public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -76,38 +64,36 @@ public class Controller implements ActionListener{
                         ((JButton) e.getSource()).setText("X");
                         ((JButton) e.getSource()).setBackground(Color.cyan);
                         setPlayer1turn(false);
-                        setPlayer2turn(true);
                     }
                     else
                     {
                         ((JButton) e.getSource()).setText("O");
                         ((JButton) e.getSource()).setBackground(Color.PINK);
                         setPlayer1turn(true);
-                        setPlayer2turn(false);
                     }
                     ((JButton) e.getSource()).setEnabled(false);
                     quit=true;
                     if (checkWin(getPlayer1turn() ? 'O' : 'X'))//inverted
                     {
                         this.gameOver=true;
-                        System.out.println("VAN GYOZTES\n");//Innen tudom, hogy belelpik
+                        gameFrame.setVisible(false);
+                        gameFrame.dispose();
                     }
                 }
             }
         }
-        if (count==boardSize*boardSize)//Ez se megy jol
+        if (count==boardSize*boardSize)
         {
-            Platform.setImplicitExit(false);
-            Platform.runLater(() -> {
-                AlertBox.display("GAME OVER", "Draw game!");
-                System.exit(2);
-            });
+            if (!checkWin(getPlayer1turn() ? 'O' : 'X'))
+                this.isDraw=true;
+            this.gameOver=true;
+            gameFrame.setVisible(false);
+            gameFrame.dispose();
         }
     }
 
     private void runGame()
     {
-        JFrame gameFrame=new JFrame();
         JPanel gamePanel= new JPanel();
         int size=getBoardSize();
         gameGrid=new JButton[size][size];
@@ -133,12 +119,6 @@ public class Controller implements ActionListener{
         gameFrame.setLayout(new GridLayout());
         gameFrame.setTitle("Tic Tac Toe");
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
-
-
-    public void PrintSomething()
-    {
-        System.out.println("Something");
     }
 
     private boolean checkWin(char player)
